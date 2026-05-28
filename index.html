@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="daten.js"></script>
   <style>
     :root {
       --red:    #d63b2f;
@@ -63,6 +64,18 @@
     .standort-card:nth-child(6n+5) .standort-num { background: var(--yellow); color: var(--dark); }
     .standort-card:nth-child(6n+6) .standort-num { background: var(--pink);   }
     .standort-info { font-size: 0.78rem; font-weight: 700; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .print-btn-wrap { text-align: center; padding: 0.8rem; background: var(--white); border-top: 2px solid #eee; }
+    .print-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--red); color: white;
+      font-family: 'Fredoka One', cursive; font-size: 1rem;
+      border: none; border-radius: 99px;
+      padding: 0.55rem 1.6rem; cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .print-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.25); }
     footer { background: var(--white); text-align: center; padding: 0.5rem; font-size: 0.72rem; color: #aaa; border-top: 4px solid transparent; border-image: linear-gradient(90deg, var(--orange), var(--red), var(--pink), var(--blue), var(--green), var(--yellow)) 1; }
     .leaflet-popup-content-wrapper { border-radius: 14px; border-top: 5px solid var(--red); font-family: 'Nunito', sans-serif; }
     .leaflet-popup-content { margin: 12px 14px; }
@@ -105,74 +118,17 @@
   <div class="standort-list" id="standort-list"></div>
 </div>
 
+<div class="print-btn-wrap">
+  <a class="print-btn" href="hofflohmarkt_druck.html" target="_blank">
+    🖨️ Druckansicht öffnen
+  </a>
+</div>
+
 <footer>Karte: © <a href="https://www.openstreetmap.org/copyright" style="color:#aaa">OpenStreetMap</a>-Mitwirkende &nbsp;|&nbsp; Ev. Kindergarten Gänseblümchen</footer>
 
 <script>
-  const standorte = [
-    { "adresse": "Am Schafgarten 7",        "lat": 49.2093017, "lng": 8.879023  },
-    { "adresse": "Beckenwiesenweg 9",        "lat": 49.2069678, "lng": 8.8789685 },
-    { "adresse": "Beckenwiesenweg 16",       "lat": 49.2059745, "lng": 8.8786874 },
-    { "adresse": "Burggrafenstr. 12",        "lat": 49.209318,  "lng": 8.877961  },
-    { "adresse": "Burggrafenstr. 17",        "lat": 49.2095322, "lng": 8.8781344 },
-    { "adresse": "Elsbeereweg 3",            "lat": 49.2053434, "lng": 8.8769788 },
-    { "adresse": "Elsbeereweg 6",            "lat": 49.2049925, "lng": 8.876976  },
-    { "adresse": "Elsbeereweg 10",           "lat": 49.2047689, "lng": 8.8774288 },
-    { "adresse": "Elsbeereweg 20",           "lat": 49.2043993, "lng": 8.8786002 },
-    { "adresse": "Enzianstr. 2a",            "lat": 49.2074191, "lng": 8.876814  },
-    { "adresse": "Enzianstr. 3",             "lat": 49.2071693, "lng": 8.8773599 },
-    { "adresse": "Enzianstr. 4",             "lat": 49.2066126, "lng": 8.8770216 },
-    { "adresse": "Fliederstr. 2",            "lat": 49.2045029, "lng": 8.8718988 },
-    { "adresse": "Fürstenstr. 4",            "lat": 49.211394,  "lng": 8.875441  },
-    { "adresse": "Fürstenstr. 7",            "lat": 49.2115361, "lng": 8.8753193 },
-    { "adresse": "Ginsterstr. 9",            "lat": 49.207185,  "lng": 8.8769151 },
-    { "adresse": "Grötzenstr. 1",            "lat": 49.2135892, "lng": 8.8721341 },
-    { "adresse": "Grötzenstr. 7",            "lat": 49.2136167, "lng": 8.8710745 },
-    { "adresse": "Hälde 7",                  "lat": 49.2146579, "lng": 8.8715043 },
-    { "adresse": "Holunderweg 6",            "lat": 49.2118437, "lng": 8.8763389 },
-    { "adresse": "Kaiserstr. 16",            "lat": 49.2076632, "lng": 8.875399  },
-    { "adresse": "Kaiserstr. 41",            "lat": 49.2096032, "lng": 8.8759698 },
-    { "adresse": "Kaiserstr. 54",            "lat": 49.2112849, "lng": 8.8746487 },
-    { "adresse": "Kaiserstr. 56",            "lat": 49.2115144, "lng": 8.8746708 },
-    { "adresse": "Kaiserstr. 60",            "lat": 49.211504,  "lng": 8.8742484 },
-    { "adresse": "Kaiserstr. 90",            "lat": 49.213634,  "lng": 8.8727357 },
-    { "adresse": "Kornblumenstr. 4",         "lat": 49.2053332, "lng": 8.8743501 },
-    { "adresse": "Kornblumenstr. 6",         "lat": 49.2051153, "lng": 8.8740034 },
-    { "adresse": "Kornblumenstr. 8",         "lat": 49.2050017, "lng": 8.8737974 },
-    { "adresse": "Reihener Str. 3a",         "lat": 49.2080528, "lng": 8.8764738 },
-    { "adresse": "Reihenerstr. 10",          "lat": 49.2078,    "lng": 8.8772    },
-    { "adresse": "Rohräckerstr. 18",         "lat": 49.2060727, "lng": 8.8773155 },
-    { "adresse": "Rohräckerstr. 26",         "lat": 49.206428,  "lng": 8.878638  },
-    { "adresse": "Schafgasse 11",            "lat": 49.2104134, "lng": 8.8777988 },
-    { "adresse": "Schafgasse 16",            "lat": 49.2103024, "lng": 8.8782227 },
-    { "adresse": "Spervogelstr. 3",          "lat": 49.2147378, "lng": 8.8723755 },
-    { "adresse": "Unter der Kelter 6",       "lat": 49.2102854, "lng": 8.8799671 },
-    { "adresse": "Unter der Kelter 8a",      "lat": 49.2105335, "lng": 8.8796253 },
-    { "adresse": "Von Öttingenstr. 45",      "lat": 49.2040678, "lng": 8.8752566 },
-    { "adresse": "Von-Venningen-Str. 10",    "lat": 49.2049091, "lng": 8.8750602 },
-    { "adresse": "Von-Venningen-Str. 19",    "lat": 49.2038861, "lng": 8.8743773 },
-    { "adresse": "Waldangellocher Str. 1",   "lat": 49.208914,  "lng": 8.875448  },
-    { "adresse": "Waldangellocherstr. 1a",   "lat": 49.208914,  "lng": 8.875448  },
-    { "adresse": "Weinbergstrasse 5",        "lat": 49.2104763, "lng": 8.879157  }
-  ];
+  // Daten werden aus daten.js geladen
 
-  const parkplaetze = [
-    { name: "Parkplatz Ev. Kirche Weiler",    adresse: "Schafgasse, Weiler",            lat: 49.210790,  lng: 8.876835  },
-    { name: "Parkplatz Fliederstraße",        adresse: "Fliederstraße, Weiler",         lat: 49.204238,  lng: 8.873265  },
-    { name: "Parkplatz Alte Kelter",          adresse: "Weinbergstraße, Weiler",        lat: 49.211588,  lng: 8.878358  },
-    { name: "Parkplatz FC Weiler",            adresse: "Zum Steinbruch, Weiler",        lat: 49.217264,  lng: 8.872222  },
-    { name: "Friedhof-Parkplatz Weiler",      adresse: "Kaiserstraße 3A, Weiler",       lat: 49.2067174, lng: 8.873426  },
-    { name: "Parkplatz Kornblumenstraße",     adresse: "Kornblumenstraße 4, Weiler",    lat: 49.2053987, lng: 8.8745918 },
-    { name: "Parkplatz Ortsmitte",            adresse: "Kaiserstraße, Weiler",          lat: 49.211143,  lng: 8.874386  },
-    { name: "Parkplatz Burg Steinsberg",      adresse: "Weinbergstraße, Hilsbach",      lat: 49.2148998, lng: 8.8764047 },
-    { name: "Parkplatz Hilsbach",             adresse: "Hilsbach",                      lat: 49.200334,  lng: 8.8716343 }
-  ];
-
-  const kindergarten = {
-    name: "Ev. Kindergarten Gänseblümchen",
-    adresse: "Burggrafenstraße 12, Weiler",
-    lat: 49.2089932,
-    lng: 8.8780397
-  };
 
   const colours = ['#d63b2f','#5b7ec5','#e8813a','#4a9b6f','#f0c040','#e07090'];
 
@@ -186,13 +142,11 @@
   const listEl     = document.getElementById('standort-list');
   let activeCard   = null;
 
-  // Hilfsfunktion: einheitlicher Schild-Stil
   const schild = (bg, inhalt, fontSize='11px') =>
     `<div style="background:${bg};border:2px solid white;border-radius:6px;width:34px;height:22px;` +
     `box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;` +
     `font-size:${fontSize};font-weight:900;color:white;font-family:sans-serif;letter-spacing:0.05em;">${inhalt}</div>`;
 
-  // Kindergarten-Marker
   const kitaIcon = L.divIcon({
     className: '',
     html: `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
@@ -220,7 +174,6 @@
     <div style="margin-top:5px;"><span class="popup-badge kita">Veranstalter</span></div>`);
   allMarkers.push(kitaMarker);
 
-  // Parkplätze
   parkplaetze.forEach(p => {
     const icon = L.divIcon({
       className: '',
@@ -237,7 +190,6 @@
     allMarkers.push(m);
   });
 
-  // Standorte
   standorte.forEach((s, i) => {
     const num     = i + 1;
     const col     = colours[i % colours.length];

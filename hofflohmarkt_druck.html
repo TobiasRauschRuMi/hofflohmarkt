@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Weilerer Hof Flohmärkte 2026 – Karte</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="daten.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { background:#f0f0f0; font-family:'Nunito',sans-serif; }
+
+    #page1 { width:794px; height:1123px; overflow:hidden; position:relative; margin:0 auto; background:white; }
+    #map { width:794px; height:1123px; }
+    .leaflet-control-container { display:none !important; }
+
+    #leadersvg {
+      position:absolute; top:0; left:0;
+      width:794px; height:794px;
+      pointer-events:none; z-index:500;
+    }
+    #pinlayer {
+      position:absolute; top:0; left:0;
+      width:794px; height:1123px;
+      pointer-events:none; z-index:600;
+    }
+
+    .pin {
+      position:absolute;
+      width:32px; height:32px;
+      border-radius:50%;
+      border:3px solid white;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:900; color:white;
+      cursor:grab; pointer-events:all;
+      box-shadow:0 3px 8px rgba(0,0,0,0.4);
+      transform:translate(-50%,-50%);
+      user-select:none; font-family:'Fredoka One',cursive;
+    }
+    .pin:active { cursor:grabbing; transform:translate(-50%,-50%) scale(1.2); }
+    .pin.ppin { border-radius:7px; background:#4a6fa5; font-size:16px; }
+    .pin.kpin { border-radius:50%; background:#4a9b6f; font-size:18px; width:38px; height:38px; }
+
+    #toolbar {
+      position:fixed; bottom:10px; left:50%;
+      transform:translateX(-50%);
+      z-index:2000; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    }
+    #admin-toolbar {
+      position:fixed; bottom:55px; left:50%;
+      transform:translateX(-50%);
+      z-index:2000; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    }
+    .tbtn {
+      background:#d63b2f; color:white; border:none; border-radius:99px;
+      padding:8px 18px; font-size:11px; font-weight:700;
+      cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.3);
+      font-family:'Nunito',sans-serif;
+      text-decoration:none; display:inline-flex; align-items:center; gap:5px;
+    }
+    .tbtn.blue   { background:#5b7ec5; }
+    .tbtn.green  { background:#4a9b6f; }
+    .tbtn.orange { background:#e8813a; }
+
+    /* Export-Dialog */
+    #exportbox {
+      display:none;
+      position:fixed; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      background:white; border-radius:12px;
+      padding:20px; width:90vw; max-width:700px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.3);
+      z-index:3000;
+    }
+    #exportbox h3 { color:#5b7ec5; font-family:'Fredoka One',cursive; margin-bottom:10px; }
+    #exportbox p  { font-size:11px; color:#666; margin-bottom:8px; }
+    #exportbox textarea {
+      width:100%; height:200px; font-size:10px; font-family:monospace;
+      border:1px solid #ddd; border-radius:6px; padding:8px;
+      resize:vertical;
+    }
+    #exportbox .close { margin-top:10px; }
+
+    #page2 { width:794px; padding:40px 35px 30px; background:white; margin:0 auto; }
+    #page2 h1 { font-size:20pt; font-weight:900; color:#5b7ec5; font-family:'Fredoka One',cursive; margin-bottom:4px; }
+    #page2 .subtitle { font-size:10pt; color:#888; margin-bottom:20px; }
+    .adress-table { width:100%; border-collapse:collapse; font-size:9pt; }
+    .adress-table th { background:#5b7ec5; color:white; padding:6px 8px; text-align:left; font-weight:700; }
+    .adress-table td { padding:4px 8px; border-bottom:1px solid #eee; vertical-align:middle; }
+    .adress-table tr:nth-child(even) td { background:#f5f8ff; }
+    .num-badge { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; font-size:8pt; font-weight:900; color:white; }
+    .page2-footer { margin-top:20px; font-size:8pt; color:#aaa; text-align:center; border-top:1px solid #eee; padding-top:10px; }
+
+    @media print {
+      @page { size:A4 portrait; margin:0; }
+      * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+      html, body { background:white; }
+      #toolbar { display:none !important; }
+      #exportbox { display:none !important; }
+      #page1 { width:794px !important; height:1123px !important; page-break-after:always; overflow:hidden; margin:0; }
+      #map   { width:794px !important; height:1123px !important; }
+      #leadersvg { width:794px !important; height:1123px !important; }
+      #pinlayer  { width:794px !important; height:1123px !important; }
+      #page2 { width:794px !important; padding:40px 35px; page-break-before:always; margin:0; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="page1">
+  <div id="map"></div>
+  <svg id="leadersvg" viewBox="0 0 794 1123" style="position:absolute;top:0;left:0;width:794px;height:1123px;pointer-events:none;z-index:500;"></svg>
+  <div id="pinlayer"></div>
+</div>
+
+<div id="page2">
+  <h1>Weilerer Hof Flohmärkte 2026</h1>
+  <div class="subtitle">Sa, 13. Juni 2026 &nbsp;|&nbsp; 11:00 – 17:00 Uhr &nbsp;|&nbsp; Hilsbach &amp; Weiler &nbsp;|&nbsp; Ev. Kindergarten Gänseblümchen</div>
+  <table class="adress-table">
+    <thead>
+      <tr>
+        <th style="width:30px">Nr.</th><th>Adresse</th>
+        <th style="width:30px">Nr.</th><th>Adresse</th>
+        <th style="width:30px">Nr.</th><th>Adresse</th>
+      </tr>
+    </thead>
+    <tbody id="adress-tbody"></tbody>
+  </table>
+  <div class="page2-footer">Karte: © OpenStreetMap-Mitwirkende &nbsp;|&nbsp; Ev. Kindergarten Gänseblümchen</div>
+</div>
+
+<div id="toolbar">
+  <a class="tbtn blue" href="index.html">← Zurück zur Karte</a>
+  <button class="tbtn" onclick="doPrint()">🖨️ Drucken / PDF</button>
+</div>
+
+<!-- Admin-Toolbar: erreichbar mit URL-Parameter ?admin=1 -->
+<div id="admin-toolbar" style="display:none;">
+  <button class="tbtn green" onclick="resetPins()">↺ Zurücksetzen</button>
+  <button class="tbtn blue" onclick="savePins()">💾 Speichern</button>
+  <button class="tbtn orange" onclick="exportPins()">📋 Koordinaten exportieren</button>
+</div>
+
+<div id="exportbox">
+  <h3>📋 Pin-Koordinaten exportieren</h3>
+  <p>Kopiere diesen Text und schick ihn an Claude. Die Positionen werden dann fest in daten.js gespeichert und jeder sieht die Karte sofort richtig.</p>
+  <textarea id="exporttext" readonly></textarea>
+  <div class="close">
+    <button class="tbtn blue" onclick="document.getElementById('exportbox').style.display='none'">✕ Schließen</button>
+    <button class="tbtn green" onclick="copyExport()">📋 Kopieren</button>
+  </div>
+</div>
+
+<script>
+  const colours = ['#d63b2f','#5b7ec5','#e8813a','#4a9b6f','#f0c040','#e07090'];
+
+  // Adressliste Seite 2
+  const tbody = document.getElementById('adress-tbody');
+  const COLS = 3, ROWS = Math.ceil(standorte.length / COLS);
+  for (let r = 0; r < ROWS; r++) {
+    const tr = document.createElement('tr');
+    for (let c = 0; c < COLS; c++) {
+      const i = r + c * ROWS;
+      if (i < standorte.length) {
+        const col = colours[i % colours.length];
+        const textCol = col === '#f0c040' ? '#2a2a2a' : 'white';
+        const tdN = document.createElement('td');
+        tdN.innerHTML = `<span class="num-badge" style="background:${col};color:${textCol}">${i+1}</span>`;
+        const tdA = document.createElement('td');
+        tdA.textContent = standorte[i].adresse;
+        tr.appendChild(tdN); tr.appendChild(tdA);
+      } else {
+        tr.appendChild(document.createElement('td'));
+        tr.appendChild(document.createElement('td'));
+      }
+    }
+    tbody.appendChild(tr);
+  }
+
+  // Karte
+  const map = L.map('map', {
+    zoomControl:false, dragging:false, touchZoom:false,
+    doubleClickZoom:false, scrollWheelZoom:false,
+    boxZoom:false, keyboard:false, tap:false, attributionControl:false
+  }).setView([49.2075, 8.8762], 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
+
+  const svgEl    = document.getElementById('leadersvg');
+  const pinlayer = document.getElementById('pinlayer');
+  const pins     = [];
+
+  // Anker-Koordinaten berechnen (Pixel auf der 794x1123 Karte)
+  function latlngToPx(lat, lng) {
+    const pt = map.latLngToContainerPoint([lat, lng]);
+    return { x: pt.x, y: pt.y };
+  }
+
+  function initPins() {
+    pins.length = 0;
+
+    // Prüfe ob gespeicherte feste Positionen in daten.js vorhanden
+    const hasSaved = typeof pinPositionen !== 'undefined' && pinPositionen.length > 0;
+
+    standorte.forEach((s, i) => {
+      const {x, y} = latlngToPx(s.lat, s.lng);
+      let px = x, py = y;
+      if (hasSaved && pinPositionen[i]) {
+        px = pinPositionen[i].px;
+        py = pinPositionen[i].py;
+      }
+      pins.push({ id:`s${i}`, num:i+1, type:'s', col:colours[i%colours.length], ax:x, ay:y, px, py });
+    });
+
+    parkplaetze.forEach((p, i) => {
+      const {x, y} = latlngToPx(p.lat, p.lng);
+      pins.push({ id:`p${i}`, type:'p', ax:x, ay:y, px:x, py:y });
+    });
+
+    const {x, y} = latlngToPx(kindergarten.lat, kindergarten.lng);
+    pins.push({ id:'k', type:'k', ax:x, ay:y, px:x, py:y });
+  }
+
+  function drawLines() {
+    let html = '';
+    pins.forEach(p => {
+      const col = p.type==='k' ? '#4a9b6f' : p.type==='p' ? '#4a6fa5' : p.col;
+      const dist = Math.sqrt((p.px-p.ax)**2 + (p.py-p.ay)**2);
+      if (dist > 8) {
+        html += `<circle cx="${p.ax}" cy="${p.ay}" r="3.5" fill="${col}" stroke="white" stroke-width="1.2"/>`;
+        html += `<line x1="${p.ax}" y1="${p.ay}" x2="${p.px}" y2="${p.py}" stroke="${col}" stroke-width="1.3" stroke-dasharray="5,2.5" opacity="0.85"/>`;
+      }
+    });
+    svgEl.innerHTML = html;
+  }
+
+  function createPinEls() {
+    pinlayer.innerHTML = '';
+    pins.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'pin' + (p.type==='p' ? ' ppin' : p.type==='k' ? ' kpin' : '');
+      if (p.type==='s') {
+        el.style.background = p.col;
+        el.textContent = p.num;
+        el.style.color = p.col==='#f0c040' ? '#2a2a2a' : 'white';
+      } else if (p.type==='p') {
+        el.textContent = 'P';
+      } else {
+        el.textContent = '🌼';
+      }
+      el.style.left = p.px + 'px';
+      el.style.top  = p.py + 'px';
+
+      let dragging=false, ox=0, oy=0;
+      const onMove = e => {
+        if (!dragging) return;
+        const cx = e.clientX || e.touches[0].clientX;
+        const cy = e.clientY || e.touches[0].clientY;
+        // Koordinaten relativ zur page1
+        const rect = document.getElementById('page1').getBoundingClientRect();
+        p.px = cx - rect.left;
+        p.py = cy - rect.top;
+        el.style.left = p.px + 'px';
+        el.style.top  = p.py + 'px';
+        drawLines();
+      };
+
+      el.addEventListener('mousedown', e => {
+        dragging=true; el.style.zIndex=9999; e.preventDefault();
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', () => { dragging=false; el.style.zIndex=''; document.removeEventListener('mousemove', onMove); }, {once:true});
+      });
+      el.addEventListener('touchstart', e => {
+        dragging=true; e.preventDefault();
+        el.addEventListener('touchmove', onMove, {passive:false});
+        el.addEventListener('touchend', () => { dragging=false; el.removeEventListener('touchmove', onMove); }, {once:true});
+      }, {passive:false});
+
+      pinlayer.appendChild(el);
+    });
+  }
+
+  function resetPins() {
+    // Nur Standort-Pins zurücksetzen
+    pins.filter(p => p.type==='s').forEach(p => {
+      p.px = p.ax; p.py = p.ay;
+    });
+    createPinEls(); drawLines();
+  }
+
+  function savePins() {
+    try {
+      localStorage.setItem('hfm_pins', JSON.stringify(
+        pins.filter(p=>p.type==='s').map(p => ({ id:p.id, px:Math.round(p.px), py:Math.round(p.py) }))
+      ));
+      alert('✅ Positionen gespeichert! Nutze "Koordinaten exportieren" um sie dauerhaft in daten.js zu speichern.');
+    } catch(e) { alert('Fehler beim Speichern.'); }
+  }
+
+  function exportPins() {
+    const data = pins.filter(p=>p.type==='s').map(p => ({
+      id: p.id,
+      px: Math.round(p.px),
+      py: Math.round(p.py)
+    }));
+    const text = `// Pin-Positionen für daten.js\nconst pinPositionen = ${JSON.stringify(data, null, 2)};`;
+    document.getElementById('exporttext').value = text;
+    document.getElementById('exportbox').style.display = 'block';
+  }
+
+  function copyExport() {
+    const ta = document.getElementById('exporttext');
+    ta.select();
+    document.execCommand('copy');
+    alert('✅ Kopiert! Schick den Text an Claude zum Eintragen in daten.js');
+  }
+
+  function loadSaved() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('hfm_pins'));
+      if (saved) saved.forEach(s => {
+        const p = pins.find(x => x.id===s.id);
+        if (p) { p.px=s.px; p.py=s.py; }
+      });
+    } catch(e) {}
+  }
+
+  function doPrint() {
+    document.getElementById('toolbar').style.display='none';
+    document.getElementById('exportbox').style.display='none';
+    window.print();
+    setTimeout(() => { document.getElementById('toolbar').style.display='flex'; }, 1000);
+  }
+
+  // Admin-Modus: hofflohmarkt_druck.html?admin=1
+  if (new URLSearchParams(window.location.search).get('admin') === '1') {
+    document.getElementById('admin-toolbar').style.display = 'flex';
+    document.querySelectorAll('.pin').forEach(p => p.style.cursor = 'grab');
+  } else {
+    // Normaler Modus: Pins nicht verschiebbar
+    document.getElementById('pinlayer').style.pointerEvents = 'none';
+  }
+
+  map.whenReady(() => {
+    setTimeout(() => {
+      initPins();
+      loadSaved();
+      drawLines();
+      createPinEls();
+    }, 800);
+  });
+</script>
+</body>
+</html>
