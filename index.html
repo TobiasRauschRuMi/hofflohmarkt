@@ -35,19 +35,16 @@
     #map { flex: 1; min-height: 52vh; width: 100%; z-index: 1; }
     .legend { background: var(--white); padding: 0.7rem 0.8rem 0.6rem; border-top: 4px solid var(--blue); }
     .legend h2 { font-family: 'Fredoka One', cursive; font-size: 1.05rem; color: var(--blue); margin-bottom: 0.5rem; }
-
-    /* Legende Symbole */
-    .map-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-bottom: 0.7rem;
-      padding: 0.5rem 0.7rem;
-      background: var(--bg);
-      border-radius: 10px;
-    }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.7rem; padding: 0.5rem 0.7rem; background: var(--bg); border-radius: 10px; }
     .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; }
-
+    .legend-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 2px solid white; border-radius: 6px;
+      width: 34px; height: 22px;
+      font-size: 0.7rem; font-weight: 900; color: white;
+      font-family: sans-serif; letter-spacing: 0.05em;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
     .standort-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.35rem; }
     .standort-card { display: flex; align-items: center; gap: 0.5rem; border-radius: 8px; padding: 0.35rem 0.6rem; cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; border: 2px solid transparent; }
     .standort-card:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -98,6 +95,12 @@
     <div class="legend-item"><span style="font-size:1.1rem">🔴</span> Flohmarkt-Standort</div>
     <div class="legend-item"><span style="font-size:1.1rem">🌼</span> Veranstalter (Kindergarten)</div>
     <div class="legend-item"><span style="font-size:1.1rem">🅿️</span> Parkplatz</div>
+    <div class="legend-item">
+      <span class="legend-badge" style="background:#2196a6;">WC</span> Toilette
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge" style="background:#e8813a; font-size:14px;">🍴</span> Verpflegung
+    </div>
   </div>
   <div class="standort-list" id="standort-list"></div>
 </div>
@@ -109,7 +112,7 @@
     { "adresse": "Am Schafgarten 7",        "lat": 49.2093017, "lng": 8.879023  },
     { "adresse": "Beckenwiesenweg 9",        "lat": 49.2069678, "lng": 8.8789685 },
     { "adresse": "Beckenwiesenweg 16",       "lat": 49.2059745, "lng": 8.8786874 },
-    { "adresse": "Burggrafenstr. 12",        "lat": 49.2091128, "lng": 8.8780659 },
+    { "adresse": "Burggrafenstr. 12",        "lat": 49.209318,  "lng": 8.877961  },
     { "adresse": "Burggrafenstr. 17",        "lat": 49.2095322, "lng": 8.8781344 },
     { "adresse": "Elsbeereweg 3",            "lat": 49.2053434, "lng": 8.8769788 },
     { "adresse": "Elsbeereweg 6",            "lat": 49.2049925, "lng": 8.876976  },
@@ -139,13 +142,11 @@
     { "adresse": "Reihenerstr. 10",          "lat": 49.2078,    "lng": 8.8772    },
     { "adresse": "Rohräckerstr. 18",         "lat": 49.2060727, "lng": 8.8773155 },
     { "adresse": "Rohräckerstr. 26",         "lat": 49.206428,  "lng": 8.878638  },
-    { "adresse": "Salzbachweg",              "lat": 49.2031153, "lng": 8.876399  },
     { "adresse": "Schafgasse 11",            "lat": 49.2104134, "lng": 8.8777988 },
     { "adresse": "Schafgasse 16",            "lat": 49.2103024, "lng": 8.8782227 },
     { "adresse": "Spervogelstr. 3",          "lat": 49.2147378, "lng": 8.8723755 },
-    { "adresse": "Steinstr. 5",              "lat": 49.2108673, "lng": 8.8761478 },
-    { "adresse": "Unter der Kelter",         "lat": 49.2102854, "lng": 8.8799671 },
-    { "adresse": "Unter der Kelter 6",       "lat": 49.2105335, "lng": 8.8796253 },
+    { "adresse": "Unter der Kelter 6",       "lat": 49.2102854, "lng": 8.8799671 },
+    { "adresse": "Unter der Kelter 8a",      "lat": 49.2105335, "lng": 8.8796253 },
     { "adresse": "Von Öttingenstr. 45",      "lat": 49.2040678, "lng": 8.8752566 },
     { "adresse": "Von-Venningen-Str. 10",    "lat": 49.2049091, "lng": 8.8750602 },
     { "adresse": "Von-Venningen-Str. 19",    "lat": 49.2038861, "lng": 8.8743773 },
@@ -155,15 +156,15 @@
   ];
 
   const parkplaetze = [
-    { name: "Parkplatz Ev. Kirche Weiler",    adresse: "Schafgasse, Weiler",            lat: 49.210790,    lng: 8.876835    },
-    { name: "Parkplatz Fliederstraße",         adresse: "Fliederstraße, Weiler",         lat: 49.204238,    lng: 8.873265    },
-    { name: "Parkplatz Alte Kelter",           adresse: "Weinbergstraße, Weiler",        lat: 49.211588,    lng: 8.878358    },
-    { name: "Parkplatz FC Weiler",             adresse: "Zum Steinbruch, Weiler",        lat: 49.217264,    lng: 8.872222    },
-    { name: "Friedhof-Parkplatz Weiler",  adresse: "Kaiserstraße 3A, Weiler",      lat: 49.2067174, lng: 8.873426  },
-    { name: "Parkplatz Kornblumenstraße", adresse: "Kornblumenstraße 4, Weiler",    lat: 49.2053987, lng: 8.8745918 },
-    { name: "Parkplatz Ortsmitte",     adresse: "Kaiserstraße, Weiler",     lat: 49.211143, lng: 8.874386 },
-    { name: "Parkplatz Burg Steinsberg",  adresse: "Weinbergstraße, Hilsbach",      lat: 49.2148998, lng: 8.8764047 },
-    { name: "Parkplatz Hilsbach",         adresse: "Hilsbach",                      lat: 49.200334,  lng: 8.8716343 }
+    { name: "Parkplatz Ev. Kirche Weiler",    adresse: "Schafgasse, Weiler",            lat: 49.210790,  lng: 8.876835  },
+    { name: "Parkplatz Fliederstraße",        adresse: "Fliederstraße, Weiler",         lat: 49.204238,  lng: 8.873265  },
+    { name: "Parkplatz Alte Kelter",          adresse: "Weinbergstraße, Weiler",        lat: 49.211588,  lng: 8.878358  },
+    { name: "Parkplatz FC Weiler",            adresse: "Zum Steinbruch, Weiler",        lat: 49.217264,  lng: 8.872222  },
+    { name: "Friedhof-Parkplatz Weiler",      adresse: "Kaiserstraße 3A, Weiler",       lat: 49.2067174, lng: 8.873426  },
+    { name: "Parkplatz Kornblumenstraße",     adresse: "Kornblumenstraße 4, Weiler",    lat: 49.2053987, lng: 8.8745918 },
+    { name: "Parkplatz Ortsmitte",            adresse: "Kaiserstraße, Weiler",          lat: 49.211143,  lng: 8.874386  },
+    { name: "Parkplatz Burg Steinsberg",      adresse: "Weinbergstraße, Hilsbach",      lat: 49.2148998, lng: 8.8764047 },
+    { name: "Parkplatz Hilsbach",             adresse: "Hilsbach",                      lat: 49.200334,  lng: 8.8716343 }
   ];
 
   const kindergarten = {
@@ -185,42 +186,50 @@
   const listEl     = document.getElementById('standort-list');
   let activeCard   = null;
 
-  // ---- Kindergarten-Marker ----
+  // Hilfsfunktion: einheitlicher Schild-Stil
+  const schild = (bg, inhalt, fontSize='11px') =>
+    `<div style="background:${bg};border:2px solid white;border-radius:6px;width:34px;height:22px;` +
+    `box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;` +
+    `font-size:${fontSize};font-weight:900;color:white;font-family:sans-serif;letter-spacing:0.05em;">${inhalt}</div>`;
+
+  // Kindergarten-Marker
   const kitaIcon = L.divIcon({
     className: '',
-    html: `<div style="
-        background:#4a9b6f;border:3px solid white;border-radius:50%;
-        width:40px;height:40px;
-        box-shadow:0 3px 12px rgba(0,0,0,0.35);
-        display:flex;align-items:center;justify-content:center;
-        font-size:20px;line-height:1;">🌼</div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -22]
+    html: `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="background:#4a9b6f;border:3px solid white;border-radius:50%;width:40px;height:40px;
+          box-shadow:0 3px 12px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;
+          font-size:20px;line-height:1;">🌼</div>
+        <div style="display:flex;gap:3px;">
+          ${schild('#2196a6', 'WC')}
+          ${schild('#e8813a', '🍴', '14px')}
+        </div>
+      </div>`,
+    iconSize: [75, 68], iconAnchor: [37, 68], popupAnchor: [0, -70]
   });
+
   const kitaMarker = L.marker([kindergarten.lat, kindergarten.lng], { icon: kitaIcon }).addTo(map);
   kitaMarker.bindPopup(`
     <div class="popup-title kita">🌼 ${kindergarten.name}</div>
     <div class="popup-addr">📍 ${kindergarten.adresse}</div>
-    <div><span class="popup-badge kita">Veranstalter</span></div>`);
+    <div style="margin-top:6px;font-size:0.82rem;font-weight:700;color:#4a9b6f;">🍽️ Verpflegung vor Ort</div>
+    <div style="font-size:0.78rem;color:#555;margin-top:3px;line-height:1.7;">
+      ☕ Kaffee &amp; Kuchen &nbsp;|&nbsp; 🧇 Waffeln<br>
+      🌭 Heiße Würste &nbsp;|&nbsp; 🥤 Getränke
+    </div>
+    <div style="margin-top:6px;font-size:0.82rem;font-weight:700;color:#4a6fa5;">🚻 WC vorhanden</div>
+    <div style="margin-top:5px;"><span class="popup-badge kita">Veranstalter</span></div>`);
   allMarkers.push(kitaMarker);
 
-  // ---- Parkplatz-Marker ----
-  const parkIcon = (name) => L.divIcon({
-    className: '',
-    html: `<div style="
-        background:#4a6fa5;border:3px solid white;border-radius:8px;
-        width:34px;height:34px;
-        box-shadow:0 3px 10px rgba(0,0,0,0.28);
-        display:flex;align-items:center;justify-content:center;
-        font-size:16px;line-height:1;">🅿️</div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -19]
-  });
-
+  // Parkplätze
   parkplaetze.forEach(p => {
-    const m = L.marker([p.lat, p.lng], { icon: parkIcon(p.name) }).addTo(map);
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="background:#4a6fa5;border:3px solid white;border-radius:8px;width:34px;height:34px;
+        box-shadow:0 3px 10px rgba(0,0,0,0.28);display:flex;align-items:center;justify-content:center;
+        font-size:16px;line-height:1;">🅿️</div>`,
+      iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -19]
+    });
+    const m = L.marker([p.lat, p.lng], { icon }).addTo(map);
     m.bindPopup(`
       <div class="popup-title parking">🅿️ ${p.name}</div>
       <div class="popup-addr">📍 ${p.adresse}</div>
@@ -228,12 +237,11 @@
     allMarkers.push(m);
   });
 
-  // ---- Standort-Marker ----
+  // Standorte
   standorte.forEach((s, i) => {
     const num     = i + 1;
     const col     = colours[i % colours.length];
     const textCol = col === '#f0c040' ? '#2a2a2a' : 'white';
-
     const icon = L.divIcon({
       className: '',
       html: `<div style="background:${col};border:3px solid white;border-radius:50% 50% 50% 0;
@@ -241,13 +249,9 @@
           box-shadow:0 3px 10px rgba(0,0,0,0.28);
           display:flex;align-items:center;justify-content:center;">
           <span style="transform:rotate(45deg);color:${textCol};
-          font-family:'Fredoka One',cursive;font-size:13px;line-height:1;">${num}</span>
-        </div>`,
-      iconSize: [34, 34],
-      iconAnchor: [17, 34],
-      popupAnchor: [0, -36]
+          font-family:'Fredoka One',cursive;font-size:13px;line-height:1;">${num}</span></div>`,
+      iconSize: [34, 34], iconAnchor: [17, 34], popupAnchor: [0, -36]
     });
-
     const marker = L.marker([s.lat, s.lng], { icon }).addTo(map);
     marker.bindPopup(`
       <div class="popup-title">Standort ${num}</div>
@@ -256,9 +260,7 @@
 
     const card = document.createElement('div');
     card.className = 'standort-card';
-    card.innerHTML = `
-      <div class="standort-num">${num}</div>
-      <div class="standort-info">${s.adresse}</div>`;
+    card.innerHTML = `<div class="standort-num">${num}</div><div class="standort-info">${s.adresse}</div>`;
     card.addEventListener('click', () => {
       if (activeCard) activeCard.classList.remove('active');
       card.classList.add('active');
